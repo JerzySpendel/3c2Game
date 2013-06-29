@@ -1,7 +1,8 @@
 __author__ = 'jurek'
 import pygame,copy,random
 from pygame.locals import *
-from Characters import Hero
+from Characters import Hero,Manager
+from Animation import Animation
 size = 800,600
 #Simple surface for tests
 class Game(object):
@@ -9,11 +10,12 @@ class Game(object):
 
         pygame.init()
         flag = DOUBLEBUF
+        self.manager = Manager()
         self.clock = pygame.time.Clock()
         self.surface = pygame.display.set_mode(size,flag)
         self.gamestate = 1
-
         self.hero = Hero()
+        self.manager.add(self.hero)
         self.loop()
     def game_exit(self):
         exit()
@@ -23,10 +25,9 @@ class Game(object):
             for event in pygame.event.get():
                 if event.type == QUIT:
                     self.gamestate = 0
-            keys = pygame.key.get_pressed()
-            self.hero.moving(keys,dt)
+            self.manager.update(dt)
             self.surface.fill((20,0,0))
-            self.surface.blit(self.hero.image,(self.hero.x,self.hero.y))
+            self.manager.draw(self.surface)
             pygame.display.flip()
         self.game_exit()
 if __name__ == '__main__':
