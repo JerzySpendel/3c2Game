@@ -3,6 +3,7 @@ import pygame,copy,random
 from pygame.locals import *
 from Characters import Hero
 size = 800,600
+#Simple surface for tests
 class Game(object):
     def __init__(self):
 

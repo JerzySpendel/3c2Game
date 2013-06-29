@@ -34,13 +34,28 @@ class Hero(pygame.sprite.Sprite):
     def setRightAnimation(self):
         self.right = []
         for i in range(3):
-            r = pygame.Rect(3+i*32,66,27,33)
+            r = pygame.Rect(3+i*32,64,27,33)
             self.right.append(self.im.subsurface(r))
     def setLeftAnimation(self):
         self.left = []
         for i in range(3):
-            r = pygame.Rect(3+i*32,33,27,33)
+            r = pygame.Rect(3+i*32,32,27,33)
             self.left.append(self.im.subsurface(r))
+
+    #Generic method for moving
+    def move(self,check,which):
+        if [True]*3 == check(which):
+            self.image = which[0]
+        if self.dt >= ANIM_RATE:
+            if self.image == which[0]:
+                self.image = which[1]
+            elif self.image == which[1]:
+                self.image = which[2]
+            elif self.image == which[2]:
+                self.image = which[0]
+            self.dt = 0
+
+#Method for moving using general "move" method
     def moving(self,keys,dt):
         def check(which):
             result = []
@@ -48,52 +63,17 @@ class Hero(pygame.sprite.Sprite):
                 if not img == self.image:
                     result.append(True)
             return result
+
         self.dt += dt
         if keys[K_d]:
-            if [True]*3 == check(self.right):
-                self.image = self.right[0]
             self.x += 0.2*dt
-            if self.dt >= ANIM_RATE:
-                if self.image == self.right[0]:
-                    self.image = self.right[1]
-                elif self.image == self.right[1]:
-                    self.image = self.right[2]
-                elif self.image == self.right[2]:
-                    self.image = self.right[0]
-                self.dt = 0
+            self.move(check,self.right)
         if keys[K_a]:
-            if [True]*3 == check(self.left):
-                self.image = self.left[0]
             self.x -= 0.2*dt
-            if self.dt >= ANIM_RATE:
-                if self.image == self.left[0]:
-                    self.image = self.left[1]
-                elif self.image == self.left[1]:
-                    self.image = self.left[2]
-                elif self.image == self.left[2]:
-                    self.image = self.left[0]
-                self.dt = 0
+            self.move(check,self.left)
         if keys[K_w]:
-            if [True]*3 == check(self.up):
-                self.image = self.up[0]
             self.y -= 0.2*dt
-            if self.dt >= ANIM_RATE:
-                if self.image == self.up[0]:
-                    self.image = self.up[1]
-                elif self.image == self.up[1]:
-                    self.image = self.up[2]
-                elif self.image == self.up[2]:
-                    self.image = self.up[0]
-                self.dt = 0
+            self.move(check,self.up)
         if keys[K_s]:
-            if [True]*3 == check(self.down):
-                self.image = self.down[0]
             self.y += 0.2*dt
-            if self.dt >= ANIM_RATE:
-                if self.image == self.down[0]:
-                    self.image = self.down[1]
-                elif self.image == self.down[1]:
-                    self.image = self.down[2]
-                elif self.image == self.down[2]:
-                    self.image = self.down[0]
-                self.dt = 0
+            self.move(check,self.down)
