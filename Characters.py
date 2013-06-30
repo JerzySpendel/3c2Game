@@ -1,6 +1,7 @@
 __author__ = 'jurek'
 import pygame
 from pygame.locals import *
+from Animation import AnimationNapalm
 ANIM_RATE = 170
 MOVE_RATE = 0.2
 """
@@ -8,10 +9,11 @@ Class representing Hero object of player with
 animations of move
 """
 class Hero(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self,manager):
         pygame.sprite.Sprite.__init__(self)
         self.im = pygame.image.load('sprites.png')
         self._anims()
+        self.manager = manager
         self.image = self.down[0]
         self.x = 10
         self.y = 10
@@ -95,7 +97,7 @@ class Hero(pygame.sprite.Sprite):
             self.y += MOVE_RATE*dt
             self.move(check, self.down)
     def mousing(self,clicked):
-        pass
+        self.manager.animations.append(AnimationNapalm(clicked))
 
 
 """
@@ -104,26 +106,45 @@ sending it to sprites under this object
 """
 
 class Manager():
-    def __init__(self):
+    def __init__(self,sur):
         self.beeings = []
         self.animations = []
+        self.surface = sur
+        self.test = AnimationNapalm((100,100))
+        self.animations.append(self.test)
     def update(self,dt):
         keys = pygame.key.get_pressed()
         mouse = pygame.mouse.get_pressed()
-        if mouse == (1,0,0):
+        if not mouse == (0,)*3:
             mouse = pygame.mouse.get_pos()
+            self.mouseUpdate(mouse)
         self.keyboardUpdate(keys,dt)
-        self.mouseUpdate(mouse)
+        self.updateAnimations(dt)
+    def updateAnimations(self,dt):
+        for anim in self.animations:
+            try:
+                anim.update(dt)
+            except Exception:
+                self.animations.remove(anim)
+
     def add(self, beeing):
         self.beeings.append(beeing)
+
+    def addAnimation(self,anim):
+        self.animations.append(anim)
+
     def keyboardUpdate(self, keys, dt):
         for sprite in self.beeings:
             sprite.moving(keys,dt)
+
     def mouseUpdate(self, clicked):
         for sprite in self.beeings:
             sprite.mousing(clicked)
+
     def draw(self, surface):
         for sprite in self.beeings:
             x = sprite.x
             y = sprite.y
             surface.blit(sprite.image, (x, y))
+        for animation in self.animations:
+            animation.draw(surface)

@@ -2,7 +2,7 @@ __author__ = 'jurek'
 import pygame,copy,random
 from pygame.locals import *
 from Characters import Hero,Manager
-from Animation import Animation
+from Animation import AnimationNapalm
 size = 800,600
 #Simple surface for tests
 class Game(object):
@@ -10,11 +10,11 @@ class Game(object):
 
         pygame.init()
         flag = DOUBLEBUF
-        self.manager = Manager()
         self.clock = pygame.time.Clock()
         self.surface = pygame.display.set_mode(size,flag)
         self.gamestate = 1
-        self.hero = Hero()
+        self.manager = Manager(self.surface)
+        self.hero = Hero(self.manager)
         self.manager.add(self.hero)
         self.loop()
     def game_exit(self):
@@ -26,6 +26,7 @@ class Game(object):
                 if event.type == QUIT:
                     self.gamestate = 0
             self.manager.update(dt)
+            print(dt)
             self.surface.fill((20,0,0))
             self.manager.draw(self.surface)
             pygame.display.flip()
