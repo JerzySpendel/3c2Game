@@ -14,8 +14,8 @@ class AnimationNapalm(pygame.sprite.Sprite):
         self.frames = []
         self.createFrames()
         self.image = self.frames[0]
-        self.spf = 1000
-        self.dt = 0
+        self.spf = 100
+        self.dt = 100
 
         self.x, self.y = where
 
