@@ -8,6 +8,8 @@ MOVE_RATE = 0.2
 Class representing Hero object of player with
 animations of move
 """
+
+
 class Hero(pygame.sprite.Sprite):
     def __init__(self,manager):
         pygame.sprite.Sprite.__init__(self)
@@ -17,28 +19,35 @@ class Hero(pygame.sprite.Sprite):
         self.image = self.down[0]
         self.x = 10
         self.y = 10
-
+        self.name = "Me"
         self.dt = 0
+
+        self.sb = StatusBar()
+
     def _anims(self):
         self._setDownAnimation()
         self._setUpAnimation()
         self._setRightAnimation()
         self._setLeftAnimation()
+
     def _setDownAnimation(self):
         self.down = []
         for i in range(3):
             r = pygame.Rect(3+i*32,0,27,33)
             self.down.append(self.im.subsurface(r))
+
     def _setUpAnimation(self):
         self.up = []
         for i in range(3):
             r = pygame.Rect(3+i*32,96,27,33)
             self.up.append(self.im.subsurface(r))
+
     def _setRightAnimation(self):
         self.right = []
         for i in range(3):
             r = pygame.Rect(3+i*32,64,27,33)
             self.right.append(self.im.subsurface(r))
+
     def _setLeftAnimation(self):
         self.left = []
         for i in range(3):
@@ -99,6 +108,15 @@ class Hero(pygame.sprite.Sprite):
     def mousing(self,clicked):
         self.manager.animations.append(AnimationNapalm(clicked))
 
+    def _drawName(self,surface):
+        font = pygame.font.Font('vademecu.ttf',10)
+        img = font.render('Me', 1, (0, 255, 0))
+        surface.blit(img, (self.x+7, self.y - 15))
+
+    def draw(self,surface):
+        surface.blit(self.image, (self.x, self.y))
+        self._drawName(surface)
+        self.sb.draw(surface)
 
 """
 Class for handling events from input and
@@ -110,8 +128,7 @@ class Manager():
         self.beeings = []
         self.animations = []
         self.surface = sur
-        self.test = AnimationNapalm((100,100))
-        self.animations.append(self.test)
+
     def update(self,dt):
         keys = pygame.key.get_pressed()
         mouse = pygame.mouse.get_pressed()
@@ -143,8 +160,24 @@ class Manager():
 
     def draw(self, surface):
         for sprite in self.beeings:
-            x = sprite.x
-            y = sprite.y
-            surface.blit(sprite.image, (x, y))
+            sprite.draw(surface)
         for animation in self.animations:
             animation.draw(surface)
+
+class StatusBar(pygame.sprite.Sprite):
+    def __init__(self):
+        super(pygame.sprite.Sprite,self).__init__()
+        self.hp = 100
+        self.mp = 100
+        self.r = pygame.Rect(10,0,150,13)
+
+    def draw(self,surface):
+        w, h = surface.get_size()
+        hp_coord = h-40
+        mp_coord = h-20
+        self.r.left = 10
+        self.r.top = hp_coord
+        pygame.draw.rect(surface, pygame.Color(255, 0, 0), self.r)
+        self.r.top = mp_coord
+        pygame.draw.rect(surface, pygame.Color(0, 0, 255), self.r)
+

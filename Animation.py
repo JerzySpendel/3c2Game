@@ -1,23 +1,24 @@
 __author__ = 'jurek'
 import pygame
-from pygame.locals import *
-
 #bc - background_color, variable (r,g,b) which tells about color used
 #  as background in set of frame in amination
 #dx - variable which tells about range between frames in 'x' axis
+
 
 class AnimationNapalm(pygame.sprite.Sprite):
     def __init__(self, where):
         super(pygame.sprite.Sprite,self).__init__()
         self.im = pygame.image.load('napalm.png')
-        self.im.set_colorkey(pygame.Color(255,0,255))
+        self.im.set_colorkey(pygame.Color(255, 0, 255))
         self.frames = []
         self.createFrames()
         self.image = self.frames[0]
         self.spf = 100
         self.dt = 100
-
         self.x, self.y = where
+
+    def setName(self,name):
+        self.name = name
 
     def update(self, dt):
         self.dt += dt
