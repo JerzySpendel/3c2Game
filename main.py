@@ -17,8 +17,10 @@ class Game(object):
         self.hero = Hero(self.manager)
         self.manager.add(self.hero)
         self.loop()
+
     def game_exit(self):
         exit()
+
     def loop(self):
         while self.gamestate == 1:
             dt = self.clock.tick()
@@ -27,7 +29,7 @@ class Game(object):
                     self.gamestate = 0
             self.manager.update(dt)
             print(dt)
-            self.surface.fill((20,0,0))
+            self.surface.fill((20, 0, 0))
             self.manager.draw(self.surface)
             pygame.display.flip()
         self.game_exit()

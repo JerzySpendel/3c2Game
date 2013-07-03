@@ -22,7 +22,7 @@ class Hero(pygame.sprite.Sprite):
         self.name = "Me"
         self.dt = 0
 
-        self.sb = StatusBar()
+        self.sb = StatusBar(self.manager.surface)
 
     def _anims(self):
         self._setDownAnimation()
@@ -69,6 +69,7 @@ class Hero(pygame.sprite.Sprite):
 
 #Method for moving using general "move" method
     def moving(self, keys, dt):
+        self.update(dt)
         def check(which):
             result = []
             for img in which:
@@ -107,6 +108,10 @@ class Hero(pygame.sprite.Sprite):
             self.move(check, self.down)
     def mousing(self,clicked):
         self.manager.animations.append(AnimationNapalm(clicked))
+        self.sb.setMana(self.sb.mp-10)
+
+    def update(self,dt):
+        self.sb.update(dt)
 
     def _drawName(self,surface):
         font = pygame.font.Font('vademecu.ttf',10)
@@ -124,12 +129,12 @@ sending it to sprites under this object
 """
 
 class Manager():
-    def __init__(self,sur):
+    def __init__(self, sur):
         self.beeings = []
         self.animations = []
         self.surface = sur
 
-    def update(self,dt):
+    def update(self, dt):
         keys = pygame.key.get_pressed()
         mouse = pygame.mouse.get_pressed()
         if not mouse == (0,)*3:
@@ -137,7 +142,8 @@ class Manager():
             self.mouseUpdate(mouse)
         self.keyboardUpdate(keys,dt)
         self.updateAnimations(dt)
-    def updateAnimations(self,dt):
+
+    def updateAnimations(self, dt):
         for anim in self.animations:
             try:
                 anim.update(dt)
@@ -147,12 +153,12 @@ class Manager():
     def add(self, beeing):
         self.beeings.append(beeing)
 
-    def addAnimation(self,anim):
+    def addAnimation(self, anim):
         self.animations.append(anim)
 
     def keyboardUpdate(self, keys, dt):
         for sprite in self.beeings:
-            sprite.moving(keys,dt)
+            sprite.moving(keys, dt)
 
     def mouseUpdate(self, clicked):
         for sprite in self.beeings:
@@ -164,20 +170,69 @@ class Manager():
         for animation in self.animations:
             animation.draw(surface)
 
+
 class StatusBar(pygame.sprite.Sprite):
-    def __init__(self):
-        super(pygame.sprite.Sprite,self).__init__()
+    def __init__(self, surface):
+        super(pygame.sprite.Sprite, self).__init__()
+        self.max_hp = 100
         self.hp = 100
+        self.max_mp = 100
         self.mp = 100
-        self.r = pygame.Rect(10,0,150,13)
+        self.font = pygame.font.Font('vademecu.ttf', 10)
+
+        self.w, self.h = surface.get_size()
+        #Variables which are determining general look of status bar
+        self.status_length = 150
+        self.status_height = 13
+
+        self.left_margin = 10
+        #Distance of mana status bar from bottom of window
+
+        self.mana_top = 20
+
+        #Distance of health status bar from bottom of window
+        self.health_top = 40
+
+        #Coordinates of points to draw border lines of mana and health status bar
+        self.health_coords = [(self.left_margin, self.h-self.health_top), (self.left_margin+self.status_length, self.h-self.health_top), (self.left_margin+self.status_length, self.h-self.health_top+self.status_height), (self.left_margin, self.h-self.health_top+self.status_height)]
+        self.mana_coords = [(self.left_margin, self.h-self.mana_top), (self.left_margin+self.status_length, self.h-self.mana_top), (self.left_margin+self.status_length, self.h-self.mana_top+self.status_height), (self.left_margin, self.h-self.mana_top+self.status_height)]
+
+        self.health_rectangle = pygame.Rect(self.left_margin, self.h-self.health_top, 150, 13)
+        self.mana_rectangle = pygame.Rect(self.left_margin, self.h-self.mana_top, 150, 13)
+
+    def update(self,dt):
+        self.mp += dt/100
+
+    def setHealth(self,val):
+        if val>=0:
+            self.hp = val
+
+    def setMana(self,val):
+        if val >= 0:
+            self.mp = val
+
+    def _percent(self,HM):
+        if HM == 1:
+            return self.hp/self.max_hp
+        else:
+            return self.mp/self.max_mp
+
+    def _healthLength(self):
+        return self.status_length*self._percent(1)
+
+    def _manaLength(self):
+        return self.status_length*self._percent(0)
+
+    def _drawBorder(self,surface):
+        self.health_rectangle.width = self._healthLength()
+        pygame.draw.lines(surface, pygame.Color(255, 0, 0), 1, self.health_coords, 1)
+        self.mana_rectangle.width = self._manaLength()
+        pygame.draw.lines(surface, pygame.Color(0, 0, 255), 1, self.mana_coords, 1)
+
+    def _drawFilledBorder(self,surface):
+        pygame.draw.rect(surface, pygame.Color(255, 0, 0), self.health_rectangle)
+        pygame.draw.rect(surface, pygame.Color(0, 0, 255), self.mana_rectangle)
 
     def draw(self,surface):
-        w, h = surface.get_size()
-        hp_coord = h-40
-        mp_coord = h-20
-        self.r.left = 10
-        self.r.top = hp_coord
-        pygame.draw.rect(surface, pygame.Color(255, 0, 0), self.r)
-        self.r.top = mp_coord
-        pygame.draw.rect(surface, pygame.Color(0, 0, 255), self.r)
-
+        self._drawBorder(surface)
+        self._drawFilledBorder(surface)
